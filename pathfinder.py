@@ -227,6 +227,54 @@ def bfs(draw, grid, start, end, ROWS):
 
     return False
 
+
+# A* without heuristics 
+# The g-score represents the cost of the path from the start node to the current node.
+def dijkstra(draw, grid, start, end):
+    draw() # Lamda is a anonym function so can call like this 
+    count = 0
+    open_set = PriorityQueue() # always gets the smallest element everytime out of it
+    open_set.put((0, count, start))
+    came_from = {}
+    g_score = {spot: float("inf") for row in grid for spot in row} # for row in grid, for spot in row => g_score[spot] = float("inf")
+    g_score[start] = 0
+
+
+    while not open_set.empty():
+        # make sure we're not quitting the game, if we are then quit 
+        for event in pygame.event.get():
+             if event.type == pygame.QUIT: 
+                 pygame.quit()
+        
+        
+        current = open_set.get()[2] # gets the min gscore related node from the priority queue 
+    
+
+        if current == end:
+            reconstruct_path(came_from, end, draw)
+            end.make_end()
+            return True
+        
+        for neighbor in current.neighbors:
+            temp_g_score = g_score[current] + 1
+
+            if temp_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = temp_g_score
+                
+                if neighbor not in open_set.queue: 
+                    count += 1
+                    open_set.put((g_score[neighbor], count, neighbor))
+                    neighbor.make_open()
+        draw()
+        
+        if current != start: 
+            current.make_closed()
+    return False
+
+
+
+
 def make_grid(rows, width):
     grid = []
     gap = width // rows # the width of each cube 
@@ -312,8 +360,11 @@ def main(win, width):
                 
                 if event.key == pygame.K_b and start and end:
                     bfs(lambda: draw(win, grid, ROWS, width), grid, start, end, ROWS)
+                
+                if event.key == pygame.K_j and start and end:
+                    dijkstra(lambda: draw(win, grid, ROWS, width), grid, start, end)
 
-                    
+
                 if event.key == pygame.K_ESCAPE:
                     start = None
                     end = None

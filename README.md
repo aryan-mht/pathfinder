@@ -21,7 +21,7 @@ This is a simple visualizer for pathfinding algorithms using Pygame. Follow the 
     - Press `A` to run the A* algorithm 
     - Press `D` to run a depth-first search algorithm 
     - Press `B` to run a breadth-first search algorithm 
-
+    - Press `J` to run a Dijkstra's algorithm 
 5. **Visualization:**
     - The visualization will show the algorithm's progress, with different colors representing different states:
         - **Red:** Closed (visited) nodes.
