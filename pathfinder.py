@@ -29,6 +29,7 @@ class Spot:
         self.neighbors = []
         self.width = width
         self.total_rows = total_rows
+
     
     def get_pos(self):
         return self.row, self.col
@@ -105,7 +106,7 @@ def reconstruct_path(came_from, current, draw):
         draw()
 
 
-def algorithm(draw, grid, start, end):
+def a_star(draw, grid, start, end):
     draw() # Lamda is a anonym function so can call like this 
     count = 0
     open_set = PriorityQueue() # always gets the smallest element everytime out of it
@@ -151,6 +152,49 @@ def algorithm(draw, grid, start, end):
             current.make_closed()
     return False
 
+
+
+def dfs(draw, grid, start, end, ROWS):
+    stack = [(start, None)] # node of node and its parent 
+    visited = set() # to  avoid duplicacy 
+    parents = {} # dict to store parent information
+    
+    
+    # while set is not empty 
+    while stack:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+        current, parent = stack.pop()
+        visited.add(current)
+
+
+        # check if we reached the goal 
+        if current == end:
+            reconstruct_path_dfs(start, end, parents, draw, ROWS, grid)  # Pass the required arguments directly
+            end.make_end()
+            return True
+        
+        for neighbor in current.neighbors:
+            if neighbor not in visited and not neighbor.is_barrier():
+                stack.append((neighbor, current))
+                neighbor.make_open()
+                parents[neighbor] = current
+                draw()
+        if current != start:
+            current.make_closed()
+    return False
+
+
+def reconstruct_path_dfs(start, end, parents, draw, rows, grid):  # Pass the required arguments directly
+    current = end
+    while current != start:
+        current.make_path()
+        draw()
+        current = parents[current]
+
+
 def make_grid(rows, width):
     grid = []
     gap = width // rows # the width of each cube 
@@ -190,7 +234,7 @@ def main(win, width):
     grid = make_grid(ROWS, width)
     start = None
     end = None
-
+    algorithm = None
     run = True
     while run:
         draw(win, grid, ROWS, width)
@@ -223,12 +267,19 @@ def main(win, width):
                     end = None
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start and end:
+                if event.key == pygame.K_d and start and end:
+                    # Execute DFS when the "D" key is pressed
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
+                    dfs(lambda: draw(win, grid, ROWS, width), grid, start, end, ROWS)
 
-                    algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)    
+                if event.key == pygame.K_a and start and end:
+                    # Execute A* when the "A" key is pressed
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
+                    a_star(lambda: draw(win, grid, ROWS, width), grid, start, end)
 
                 if event.key == pygame.K_ESCAPE:
                     start = None
