@@ -2,6 +2,7 @@ import pygame
 import math
 from queue import PriorityQueue
 
+
 WIDTH = 800
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 pygame.display.set_caption("Pathfinder Visualizer")
@@ -155,6 +156,7 @@ def a_star(draw, grid, start, end):
 
 
 def dfs(draw, grid, start, end, ROWS):
+    draw() # Lamda is a anonym function so can call like this 
     stack = [(start, None)] # node of node and its parent 
     visited = set() # to  avoid duplicacy 
     parents = {} # dict to store parent information
@@ -172,7 +174,7 @@ def dfs(draw, grid, start, end, ROWS):
 
         # check if we reached the goal 
         if current == end:
-            reconstruct_path_dfs(start, end, parents, draw, ROWS, grid)  # Pass the required arguments directly
+            reconstruct_path_dfs_bfs(start, end, parents, draw)  # Pass the required arguments directly
             end.make_end()
             return True
         
@@ -187,13 +189,43 @@ def dfs(draw, grid, start, end, ROWS):
     return False
 
 
-def reconstruct_path_dfs(start, end, parents, draw, rows, grid):  # Pass the required arguments directly
+def reconstruct_path_dfs_bfs(start, end, parents, draw,):  # Pass the required arguments directly
     current = end
     while current != start:
         current.make_path()
         draw()
         current = parents[current]
 
+
+
+def bfs(draw, grid, start, end, ROWS):
+    draw()
+    queue = [start]
+    visited = set()
+    parents = {}
+
+    while queue: 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        current = queue.pop(0)
+
+        if current == end:
+            reconstruct_path_dfs_bfs(start, end, parents, draw)
+            end.make_end()
+            return True        
+        
+        for neighbor in current.neighbors:
+            if neighbor not in visited and not neighbor.is_barrier():
+                queue.append(neighbor)
+                visited.add(neighbor)
+                neighbor.make_open()
+                parents[neighbor] = current
+                draw()
+        if current != start:
+            current.make_closed()
+
+    return False
 
 def make_grid(rows, width):
     grid = []
@@ -267,20 +299,21 @@ def main(win, width):
                     end = None
             
             if event.type == pygame.KEYDOWN:
+                for row in grid:
+                    for spot in row:
+                        spot.update_neighbors(grid)                
                 if event.key == pygame.K_d and start and end:
                     # Execute DFS when the "D" key is pressed
-                    for row in grid:
-                        for spot in row:
-                            spot.update_neighbors(grid)
                     dfs(lambda: draw(win, grid, ROWS, width), grid, start, end, ROWS)
 
                 if event.key == pygame.K_a and start and end:
                     # Execute A* when the "A" key is pressed
-                    for row in grid:
-                        for spot in row:
-                            spot.update_neighbors(grid)
                     a_star(lambda: draw(win, grid, ROWS, width), grid, start, end)
+                
+                if event.key == pygame.K_b and start and end:
+                    bfs(lambda: draw(win, grid, ROWS, width), grid, start, end, ROWS)
 
+                    
                 if event.key == pygame.K_ESCAPE:
                     start = None
                     end = None
