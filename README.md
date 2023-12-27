@@ -18,8 +18,9 @@ This is a simple visualizer for pathfinding algorithms using Pygame. Follow the 
     - Barriers are obstacles that the pathfinding algorithm should navigate around.
 
 4. **Running Algorithms:**
-    - Press `A` to run the A* algorithm (yellow).
-    - Press `D` to run a depth-first search algorithm (green).
+    - Press `A` to run the A* algorithm 
+    - Press `D` to run a depth-first search algorithm 
+    - Press `B` to run a breadth-first search algorithm 
 
 5. **Visualization:**
     - The visualization will show the algorithm's progress, with different colors representing different states:
